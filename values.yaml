@@ -1,0 +1,23 @@
+
+# 镜像仓库信息
+registry:
+  url: registry.arksec.cn
+  user: readonly
+  password: Arksec12345
+  project: public/dev
+  tag: latest
+
+# 组件
+modules:
+  mongodb:
+    enable: true
+    nodePort: 30017
+    # 是否需要持久化
+    persistence:
+      enable: false # 默认不开启, 以下参数在开启时才使用
+      type: "storageClass" # 支持"existingClaim", "hostPath"和"storageClass"三种类型
+      storageClass: "local-path"
+      existingClaim: "data-db-0"
+      hostPath: "/mnt/data/mongodb"
+      accessMode: ReadWriteOnce
+      size: 2Gi
