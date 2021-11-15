@@ -1,0 +1,17 @@
+{{- if .Values.mongodb.enable -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mongodb.name" . }}
+  labels:
+    db/name: mongodb
+spec:
+  type: NodePort
+  ports:
+    - port: 27017
+      protocol: TCP
+      targetPort: 27017
+      nodePort: {{ .Values.mongodb.nodePort }}
+  selector:
+    db/name: mongodb
+{{- end -}}
