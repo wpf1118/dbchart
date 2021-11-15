@@ -1,23 +1,74 @@
-{{- if .Values.modules.mongodb.enable -}}
-{{- $label := printf "%s:%s" "db/name" include "mongodb.name" . -}}
+{{- if .Values.mongodb.enable -}}
 apiVersion: {{ include "apiVersion.sts" . }}
 kind: StatefulSet
 metadata:
   name: {{ include "mongodb.name" . }}
-  lables:
-{{$label | indent 4}}
+  labels:
+{{include "db.labels" (dict "label" "mongodb") | indent 4}}
 spec:
   serviceName: "db-mongodb"
   replicas: 1
   selector:
     matchLabels:
-{{$label | indent 6 }}
+{{include "db.labels" (dict "label" "mongodb") | indent 6}}
   template:
     metadata:
-      labels:
-{{$label | indent 8 }}
+{{include "db.labels" (dict "label" "mongodb") | indent 8}}
     spec:
       containers:
       - name: mongodb
-        image: 
+        image: {{include "mongodb.image" . }}
+        imagePullPolicy: Always
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_INIT_ROOT_USERNAME
+              name: {{ include "mongodb.name" . }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: MONGO_INITDB_ROOT_PASSWORD
+              name: {{ include "mongodb.name" . }}
+        ports:
+        - containerPort: "27017"
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - rm -rf /data/db/WiredTiger /data/db/WiredTiger.lock /data/db/mongod.lock
+        volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d/setup.sh
+          name: "init"
+          subPath: MONGO_INITDB_SCRIPT
+        - mountPath: /data/db
+          name: "data"
+      volumes:
+      - name: "init"
+        configMap:
+          name: {{ include "mongodb.name" . }}
+      - name: "data"
+        {{- if not .Values.mongodb.persistence.enabled }}
+        emptyDir: {}
+        {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
+        persistentVolumeClaim:
+          claimName: {{ include "mongodb.name" . }}
+        {{- end }}
+
+{{- if and .Values.mongodb.persistence.enabled (eq .Values.mongodb.persistence.type "storageClass" ) -}}
+{{ $data := .persistence }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "data"
+      labels:
+{{ include "db.labels" (dict "label" "mongodb") | indent 8 }}
+    spec:
+      accessModes: [{{ $data.accessMode | quote }}] 
+      storageClassName: "{{ $data.storageClass }}"
+      resources:
+        requests:
+          storage: {{ $data.size | quote }}
+{{- end -}}
 {{- end -}}
