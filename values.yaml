@@ -8,6 +8,11 @@ registry:
 # 组件
 mongodb:
   enable: true
+  migrate:
+    enable: false
+    image:
+      repository: migrate
+      project: himalaya/dev
   image:
     repository: mongo
   nodePort: 30017
