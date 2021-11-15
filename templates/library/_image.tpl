@@ -1,7 +1,7 @@
 {{- define "image.name" -}}
-{{- $url := ".Values.registry.url" -}}
-{{- $project := ".Values.registry.project" -}}
-{{- $tag := ".Values.registry.tag" | toString -}}
+{{- $url := .Values.registry.url -}}
+{{- $project := .Values.registry.project -}}
+{{- $tag := .Values.registry.tag | toString -}}
 {{- $repository := .imageRoot.repository -}}
 
 {{- if .imageRoot.url}}

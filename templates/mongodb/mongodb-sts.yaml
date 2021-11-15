@@ -17,46 +17,46 @@ spec:
         db/name: mongodb
     spec:
       containers:
-      - name: mongodb
-        image: {{include "mongodb.image" . }}
-        imagePullPolicy: {{ .Values.cluster.imagePullPolicy}}
-        env:
-          - name: MONGO_INITDB_ROOT_USERNAME
-            valueFrom:
-              configMapKeyRef:
-                key: MONGO_INIT_ROOT_USERNAME
-                name: {{ include "mongodb.name" . }}
-          - name: MONGO_INITDB_ROOT_PASSWORD
-            valueFrom:
-              configMapKeyRef:
-                key: MONGO_INITDB_ROOT_PASSWORD
-                name: {{ include "mongodb.name" . }}
-        ports:
-          - containerPort: 27017
-        lifecycle:
-          preStop:
-            exec:
-              command:
-                - sh
-                - -c
-                - rm -rf /data/db/WiredTiger /data/db/WiredTiger.lock /data/db/mongod.lock
-        volumeMounts:
-        - mountPath: /docker-entrypoint-initdb.d/setup.sh
-          name: "init"
-          subPath: MONGO_INITDB_SCRIPT
-        - mountPath: /data/db
-          name: "data"
+        - name: mongodb
+          image: {{include "mongodb.image" . }}
+          imagePullPolicy: {{ .Values.cluster.imagePullPolicy}}
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INIT_ROOT_USERNAME
+                  name: {{ include "mongodb.name" . }}
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_ROOT_PASSWORD
+                  name: {{ include "mongodb.name" . }}
+          ports:
+            - containerPort: 27017
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - rm -rf /data/db/WiredTiger /data/db/WiredTiger.lock /data/db/mongod.lock
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/setup.sh
+              name: "init"
+              subPath: MONGO_INITDB_SCRIPT
+            - mountPath: /data/db
+              name: "data"
       volumes:
-      - name: "init"
-        configMap:
-          name: {{ include "mongodb.name" . }}
-      - name: "data"
-        {{- if not .Values.mongodb.persistence.enabled }}
-        emptyDir: {}
-        {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
-        persistentVolumeClaim:
-          claimName: {{ include "mongodb.name" . }}
-        {{- end }}
+        - name: "init"
+          configMap:
+            name: {{ include "mongodb.name" . }}
+        - name: "data"
+          {{- if not .Values.mongodb.persistence.enabled }}
+          emptyDir: {}
+          {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
+          persistentVolumeClaim:
+            claimName: {{ include "mongodb.name" . }}
+          {{- end }}
 
     {{- if and .Values.mongodb.persistence.enabled (eq .Values.mongodb.persistence.type "storageClass" ) -}}
     {{ $data := .persistence }}
