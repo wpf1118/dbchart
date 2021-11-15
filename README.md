@@ -10,3 +10,7 @@ helm install "${REDSTONE_RELEASE}" -n "${REDSTONE_NAMESPACE}" ./ \
 --set mongodb.persistence.enable=true \
 --set mongodb.nodePort=37017
 ```
+
+```
+helm uninstall "${REDSTONE_RELEASE}" -n "${REDSTONE_NAMESPACE}"
+```
