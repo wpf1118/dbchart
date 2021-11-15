@@ -4,22 +4,22 @@ kind: StatefulSet
 metadata:
   name: {{ include "mongodb.name" . }}
   labels:
-{{include "db.labels" (dict "label" "mongodb") | indent 4}}
+  {{include "db.labels" (dict "label" "mongodb") .  | indent 4}}
 spec:
   serviceName: "db-mongodb"
   replicas: 1
   selector:
     matchLabels:
-{{include "db.labels" (dict "label" "mongodb") | indent 6}}
-  template:
-    metadata:
-{{include "db.labels" (dict "label" "mongodb") | indent 8}}
-    spec:
-      containers:
-      - name: mongodb
-        image: {{include "mongodb.image" . }}
-        imagePullPolicy: {{ .Values.cluster.imagePullPolicy}}
-        env:
+  {{include "db.labels" (dict "label" "mongodb") .  | indent 6}}
+template:
+  metadata:
+  {{include "db.labels" (dict "label" "mongodb") .  | indent 8}}
+spec:
+  containers:
+    - name: mongodb
+      image: {{include "mongodb.image" . }}
+      imagePullPolicy: {{ .Values.cluster.imagePullPolicy}}
+      env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             configMapKeyRef:
@@ -30,45 +30,45 @@ spec:
             configMapKeyRef:
               key: MONGO_INITDB_ROOT_PASSWORD
               name: {{ include "mongodb.name" . }}
-        ports:
+      ports:
         - containerPort: 27017
-        lifecycle:
-          preStop:
-            exec:
-              command:
+      lifecycle:
+        preStop:
+          exec:
+            command:
               - sh
               - -c
               - rm -rf /data/db/WiredTiger /data/db/WiredTiger.lock /data/db/mongod.lock
-        volumeMounts:
+      volumeMounts:
         - mountPath: /docker-entrypoint-initdb.d/setup.sh
           name: "init"
           subPath: MONGO_INITDB_SCRIPT
         - mountPath: /data/db
           name: "data"
-      volumes:
-      - name: "init"
-        configMap:
-          name: {{ include "mongodb.name" . }}
-      - name: "data"
-        {{- if not .Values.mongodb.persistence.enabled }}
-        emptyDir: {}
-        {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
-        persistentVolumeClaim:
-          claimName: {{ include "mongodb.name" . }}
-        {{- end }}
+  volumes:
+    - name: "init"
+      configMap:
+        name: {{ include "mongodb.name" . }}
+    - name: "data"
+      {{- if not .Values.mongodb.persistence.enabled }}
+      emptyDir: {}
+      {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
+      persistentVolumeClaim:
+        claimName: {{ include "mongodb.name" . }}
+      {{- end }}
 
-{{- if and .Values.mongodb.persistence.enabled (eq .Values.mongodb.persistence.type "storageClass" ) -}}
-{{ $data := .persistence }}
-  volumeClaimTemplates:
+  {{- if and .Values.mongodb.persistence.enabled (eq .Values.mongodb.persistence.type "storageClass" ) -}}
+  {{ $data := .persistence }}
+volumeClaimTemplates:
   - metadata:
       name: "data"
       labels:
-{{ include "db.labels" (dict "label" "mongodb") | indent 8 }}
-    spec:
-      accessModes: [{{ $data.accessMode | quote }}] 
-      storageClassName: "{{ $data.storageClass }}"
-      resources:
-        requests:
-          storage: {{ $data.size | quote }}
-{{- end -}}
-{{- end -}}
+  {{ include "db.labels" (dict "label" "mongodb") .  | indent 8 }}
+spec:
+  accessModes: [{{ $data.accessMode | quote }}]
+  storageClassName: "{{ $data.storageClass }}"
+  resources:
+    requests:
+      storage: {{ $data.size | quote }}
+  {{- end -}}
+  {{- end -}}
