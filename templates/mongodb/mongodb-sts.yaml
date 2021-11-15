@@ -18,7 +18,7 @@ spec:
       containers:
       - name: mongodb
         image: {{include "mongodb.image" . }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.cluster.imagePullPolicy}}
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
