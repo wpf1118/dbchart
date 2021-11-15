@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "mongodb.name" . }}
   labels:
-  {{ include "db.labels" (dict "label" "mongodb") . | indent 4 }}
+    db/name: mongodb
 data:
   MONGO_INITDB_ROOT_PASSWORD: Arksec12345
   MONGO_INITDB_ROOT_USERNAME: admin
