@@ -1,8 +1,8 @@
 # 镜像仓库信息
 registry:
  url: registry.arksec.cn
- user: readonly
- password: Arksec12345
+ user: hook
+ password: Arksec@bj.pw1
  project: public/dev
  tag: latest
 # 组件
