@@ -22,5 +22,5 @@ Mongodb Endpoints
 {{- end -}}
 
 {{- define "mongodb.image" -}}
-{{ include "image.name" (dict "imageRoot" .Values.mongodb) }}
+{{ include "image.name" (dict "imageRoot" .Values.mongodb.image "registry" .Values.registry) }}
 {{- end -}}
