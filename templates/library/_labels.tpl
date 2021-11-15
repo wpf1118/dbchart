@@ -1,3 +1,3 @@
 {{- define "db.labels" -}}
-db/name: .label
+{{ printf "%s:%s" "db/name" .label}}
 {{- end -}}
