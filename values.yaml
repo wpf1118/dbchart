@@ -11,6 +11,8 @@ registry:
 modules:
   mongodb:
     enable: true
+    image:
+      repository: mongo
     nodePort: 30017
     # 是否需要持久化
     persistence:
@@ -21,3 +23,6 @@ modules:
       hostPath: "/mnt/data/mongodb"
       accessMode: ReadWriteOnce
       size: 2Gi
+
+#集群相关
+cluster:

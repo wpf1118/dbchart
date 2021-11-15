@@ -1,0 +1,23 @@
+{{- if .Values.modules.mongodb.enable -}}
+{{- $label := printf "%s:%s" "db/name" include "mongodb.name" . -}}
+apiVersion: {{ include "apiVersion.sts" . }}
+kind: StatefulSet
+metadata:
+  name: {{ include "mongodb.name" . }}
+  lables:
+{{$label | indent 4}}
+spec:
+  serviceName: "db-mongodb"
+  replicas: 1
+  selector:
+    matchLabels:
+{{$label | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{$label | indent 8 }}
+    spec:
+      containers:
+      - name: mongodb
+        image: 
+{{- end -}}
