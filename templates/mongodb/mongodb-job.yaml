@@ -1,23 +1,31 @@
-{{- if and .Values.mongodb.enabled .Values.mongodb.migrate.enabled -}}
+{{- if and .Values.mongodb.enable .Values.mongodb.migrate.enable -}}
 apiVersion: batch/v1
 kind: Job
-  metadata:
-    name: {{ include "mongodb.name" . }}-migreate
+metadata:
+  name: {{ include "mongodb.name" . }}-migreate
   labels:
     db/name: mongodb
 spec:
-  containers:
-    - name: migrate
-      image: {{ include "mongodb.migrate.image" . }}
-      imagePullPolicy: {{ .Values.cluster.imagePullPolicy }}
-      command:
-        - /migrate-backend
-      args:
-        - --mongo-endpoint={{ include "mongodb.host" . }}:{{ include "mongodb.port" . }}
-        - --mongo-password={{ include "mongodb.password" . }}
-        - --mongo-username={{ include "mongodb.username" . }}
-  restartPolicy: Never
-  imagePullSecrets:
-    {{ include "imagePullSecret.dockerconfigjson" . | indent 8 }}
-
+  backoffLimit: 5
+  ttlSecondsAfterFinished: 10000
+  activeDeadlineSeconds: 1000
+  template:
+    metadata:
+      name: {{ include "mongodb.name" . }}-migreate
+      labels:
+        db/name: mongodb
+    spec:
+      containers:
+        - name: migrate
+          image: {{ include "mongodb.migrate.image" . }}
+          imagePullPolicy: {{ .Values.cluster.imagePullPolicy }}
+          command:
+            - /migrate-backend
+          args:
+            - --mongo-endpoint={{ include "mongodb.host" . }}:{{ include "mongodb.port" . }}
+            - --mongo-password={{ include "mongodb.password" . }}
+            - --mongo-username={{ include "mongodb.username" . }}
+      restartPolicy: Never
+      imagePullSecrets:
+        {{ include "imagePullSecret.dockerconfigjson" . | indent 8 }}
 {{- end -}}

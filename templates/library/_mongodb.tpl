@@ -26,5 +26,5 @@ Mongodb Endpoints
 {{- end -}}
 
 {{- define "mongodb.migrate.image" -}}
-{{ include "image.name" (dict "imageRoot" .Values.mongodb.registry.image "registry" .Values.registry) }}
+{{ include "image.name" (dict "imageRoot" .Values.mongodb.migrate.image "registry" .Values.registry) }}
 {{- end -}}
