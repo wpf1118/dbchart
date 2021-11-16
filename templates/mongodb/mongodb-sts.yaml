@@ -50,28 +50,30 @@ spec:
         - name: "init"
           configMap:
             name: {{ include "mongodb.name" . }}
-        - name: "data"
           {{- if not .Values.mongodb.persistence.enable }}
+        - name: "data"
           emptyDir: {}
           {{- else if eq "hostPath" .Values.mongodb.persistence.type }}
+        - name: "data"
           persistentVolumeClaim:
             claimName: {{ include "mongodb.name" . }}
           {{- end }}
-      imagePullSecrets:
-        {{ include "imagePullSecret.dockerconfigjson" . | indent 6 }}
 
-    {{- if and .Values.mongodb.persistence.enable (eq .Values.mongodb.persistence.type "storageClass" ) -}}
-    {{ $data := .persistence }}
-    volumeClaimTemplates:
-      - metadata:
-          name: "data"
-          labels:
-            db/name: mongodb
+      imagePullSecrets:
+  {{ include "imagePullSecret.dockerconfigjson" . | indent 6 }}
+
+  {{- if and .Values.mongodb.persistence.enable (eq .Values.mongodb.persistence.type "storageClass" ) -}}
+  {{ $data := .Values.mongodb.persistence }}
+  volumeClaimTemplates:
+    - metadata:
+        name: "data"
+        labels:
+          db/name: mongodb
       spec:
         accessModes: [{{ $data.accessMode | quote }}]
         storageClassName: "{{ $data.storageClass }}"
         resources:
           requests:
             storage: {{ $data.size | quote }}
-        {{- end -}}
+  {{- end -}}
   {{- end -}}
