@@ -4,7 +4,7 @@
 
 {{- define "imagePullSecret.auth" }}
 {{- with .Values.registry }}
-{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" .url .user .password .imageReistryEmail (printf "%s:%s" .user .password | b64enc) | b64enc }}
+{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"auth\":\"%s\"}}}" .url .user .password (printf "%s:%s" .user .password | b64enc) | b64enc }}
 {{- end }}
 {{- end }}
 
